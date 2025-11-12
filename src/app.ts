@@ -1,8 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { getProductsData } from './utils/getData.js';
-
+import authRouter from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -23,6 +22,7 @@ app.use(express.static("public")); // use public folder for files
 
 app.use(cookieParser()) // for accessing user's browser cookie
 
+app.use("/api/v1/auth", authRouter);
 
 app.get("/", (req, res) => {
     res.send("This is product dashboard backend API...")
