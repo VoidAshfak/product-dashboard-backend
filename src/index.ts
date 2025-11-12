@@ -1,11 +1,6 @@
 import 'dotenv/config';
-import express from 'express';
+import { app } from './app.js';
 
-const app = express();
-app.use(express.json());
-
-
-const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
-app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`);
-});
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running at port: ${process.env.PORT}`);
+})
