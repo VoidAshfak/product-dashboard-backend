@@ -26,7 +26,7 @@ const loginUser = async (
     res: Response<ApiResponse<LoginSuccessPayload>>
 ) => {
 
-    const { email, password } = req.body ?? {};    
+    const { email, password } = req.body ?? {};
 
     if (!email) {
         throw new ApiError(400, "All fields are required");
@@ -73,11 +73,18 @@ const loginUser = async (
 
 const refresh = (req: Request, res: Response) => {
     const user = req.user;
-    res.json({user})
+    res.json({ user })
+}
+
+const logout = (req: Request, res: Response) => {
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.json({ message: "User Logged Out Successfully", success: true });
 }
 
 export {
     loginUser,
-    refresh
+    refresh,
+    logout
 }
 
