@@ -20,22 +20,27 @@ export const verifyJWT = (
     _res: Response<ApiResponse<LoginSuccessPayload>>,
     next: NextFunction
 ): void => {
+    const rawToken = req.cookies?.accessToken;
+
+    if (!rawToken) {
+        return next(new ApiError(401, "Unauthorized request"));
+    }
+
+    // In case something stored "Bearer <token>" in the cookie
+    const token = rawToken.startsWith("Bearer ")
+        ? rawToken.slice(7)
+        : rawToken;
+
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+    if (!secret) {
+        return next(new Error("ACCESS_TOKEN_SECRET is not set"));
+    }
+
     try {
-        const token = req.cookies?.accessToken;
-            
-        if (!token) {
-            throw new ApiError(401, "Unauthorized request");
-        }
-
-        const secret = process.env.ACCESS_TOKEN_SECRET;
-        if (!secret) {
-            throw new Error("ACCESS_TOKEN_SECRET is not set");
-        }
-
         const { userId } = jwt.verify(token, secret) as JwtUserPayload;
-    
+
         if (!userId || userId !== user.id) {
-            throw new ApiError(401, "Unauthorized request");
+            return next(new ApiError(401, "Unauthorized request"));
         }
 
         req.user = {
@@ -44,14 +49,12 @@ export const verifyJWT = (
             role: user.role,
         };
 
-        next();
+        return next();
     } catch (err) {
         console.error("verifyJWT error:", err);
-        if (err instanceof ApiError) {
-            return next(err);
-        }
         return next(new ApiError(401, "Invalid access token"));
     }
 };
+
 
 
