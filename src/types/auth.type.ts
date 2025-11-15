@@ -21,8 +21,6 @@ interface responseUser {
 
 interface LoginSuccessPayload {
     user: responseUser;
-    accessToken: string;
-    refreshToken: string;
 }
 
 

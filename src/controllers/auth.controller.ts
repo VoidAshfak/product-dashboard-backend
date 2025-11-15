@@ -26,10 +26,11 @@ const loginUser = async (
     res: Response<ApiResponse<LoginSuccessPayload>>
 ) => {
 
-    const { email, password } = req.body ?? {};
+    const { email, password } = req.body ?? {};    
 
-
-    if (!email || !password) {
+    if (!email) {
+        throw new ApiError(400, "All fields are required");
+    } else if (!password) {
         throw new ApiError(400, "All fields are required");
     }
 
@@ -61,7 +62,7 @@ const loginUser = async (
             new ApiResponse<LoginSuccessPayload>(
                 200,
                 {
-                    user: responseUser, accessToken, refreshToken
+                    user: responseUser
                 },
                 "User Logged In Successfully"
             )
@@ -70,7 +71,13 @@ const loginUser = async (
 
 }
 
+const refresh = (req: Request, res: Response) => {
+    const user = req.user;
+    res.json({user})
+}
+
 export {
-    loginUser
+    loginUser,
+    refresh
 }
 

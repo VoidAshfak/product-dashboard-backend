@@ -1,5 +1,7 @@
-//function to connect to the database
+import dotenv from 'dotenv';
 
+dotenv.config({ path: './.env' })
+ 
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -19,7 +21,7 @@ const svc: object = {
 
 initializeApp({
   credential: cert(svc),
-  projectId: process.env.FIRESTORE_PROJECT_ID!
+  projectId: process.env.FIREBASE_ACCOUNT_PROJECTID!
 });
 
 const db = getFirestore();
