@@ -5,18 +5,18 @@ import jwt from "jsonwebtoken"
 import type {
     LoginBody,
     LoginSuccessPayload,
-    responseUser,
+    ResponseUser,
     Tokens,
 } from "../types/auth.type.js";
 import { user } from "../db/data.js";
 
 
 const generateAccessAndRefreshToken = (userId: string): Tokens => {
-    const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET!, {
-        expiresIn: "15m",
-    });
-    const refreshToken = jwt.sign({ userId }, process.env.JWT_SECRET!, {
+    const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {
         expiresIn: "1d",
+    });
+    const refreshToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {
+        expiresIn: "15d",
     });
     return { accessToken, refreshToken };
 };
@@ -28,8 +28,9 @@ const loginUser = async (
 
     const { email, password } = req.body ?? {};
 
-
-    if (!email || !password) {
+    if (!email) {
+        throw new ApiError(400, "All fields are required");
+    } else if (!password) {
         throw new ApiError(400, "All fields are required");
     }
 
@@ -40,7 +41,7 @@ const loginUser = async (
         throw new ApiError(401, "Invalid credentials");
     }
 
-    const responseUser: responseUser = {
+    const responseUser: ResponseUser = {
         id: user?.id,
         email: user?.email,
         role: user?.role,
@@ -61,7 +62,7 @@ const loginUser = async (
             new ApiResponse<LoginSuccessPayload>(
                 200,
                 {
-                    user: responseUser, accessToken, refreshToken
+                    user: responseUser
                 },
                 "User Logged In Successfully"
             )
@@ -70,7 +71,20 @@ const loginUser = async (
 
 }
 
+const refresh = (req: Request, res: Response) => {
+    const user = req.user;
+    res.json({ user })
+}
+
+const logout = (req: Request, res: Response) => {
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.json({ message: "User Logged Out Successfully", success: true });
+}
+
 export {
-    loginUser
+    loginUser,
+    refresh,
+    logout
 }
 

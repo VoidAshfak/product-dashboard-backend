@@ -13,17 +13,15 @@ interface User {
     role: "admin" | "user";
 }
 
-interface responseUser {
+interface ResponseUser {
     id: string;
     email: string;
     role: "admin" | "user";
 }
 
 interface LoginSuccessPayload {
-    user: responseUser;
-    accessToken: string;
-    refreshToken: string;
+    user: ResponseUser;
 }
 
 
-export type { LoginBody, Tokens, User, responseUser, LoginSuccessPayload };
+export type { LoginBody, Tokens, User, ResponseUser, LoginSuccessPayload };
