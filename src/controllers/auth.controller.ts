@@ -77,9 +77,11 @@ const refresh = (req: Request, res: Response) => {
 }
 
 const logout = (req: Request, res: Response) => {
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
-    res.json({ message: "User Logged Out Successfully", success: true });
+    return res
+        .status(200)
+        .cookie("accessToken", null)
+        .cookie("refreshToken", null)
+        .json(new ApiResponse(200, null, "User Logged Out Successfully"));
 }
 
 export {
