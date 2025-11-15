@@ -2,7 +2,7 @@ import db from "../db/firebaseConfig.js";
 import type { Request, Response } from "express";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
-import type { Product, ProductPayload } from '../types/products.type.js'
+import type { Product } from '../types/products.type.js'
 
 const getProducts = async (
     req: Request,
@@ -26,18 +26,21 @@ const createProduct = async (
     res: Response
 ) => {
     try {
-        const { name, category, price, stock, status } = req.body;
+        const { name, category, price, stock, status, totalSold, totalViews, ratingAvg } = req.body;
 
         if (!name || !category || price == null || stock == null || !status) {
             throw new ApiError(400, "Missing required product fields");
         }
 
-        const payload: ProductPayload = {
+        const payload = {
             name,
             category,
-            price: Number(price),
-            stock: Number(stock),
-            status
+            price,
+            stock,
+            status,
+            totalSold,
+            totalViews, 
+            ratingAvg
         };
 
         const docRef = await db.collection("dashboard").add(payload);
@@ -69,7 +72,7 @@ const updateProduct = async (
 ) => {
     try {
         const { id } = req.params;
-        const { name, category, price, stock, status } = req.body;
+        const { name, category, price, stock, status, totalSold, totalViews, ratingAvg } = req.body;
 
         const docRef = db.collection("dashboard").doc(id!);
         const docSnap = await docRef.get();
@@ -84,6 +87,9 @@ const updateProduct = async (
             ...(price !== undefined && { price: Number(price) }),
             ...(stock !== undefined && { stock: Number(stock) }),
             ...(status !== undefined && { status }),
+            ...(totalSold !== undefined && { totalSold }),
+            ...(totalViews !== undefined && { totalViews }),
+            ...(ratingAvg !== undefined && { ratingAvg }),
         };
 
         await docRef.update(updatePayload);

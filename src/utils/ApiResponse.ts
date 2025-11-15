@@ -1,4 +1,7 @@
-export class ApiResponse<T = unknown> {
+import type { ResponseUser } from "../types/auth.type.js";
+import type { Product } from "../types/products.type.js";
+
+export class ApiResponse<T = Product | ResponseUser> {
   public readonly statusCode: number;
   public readonly data: T;
   public readonly message: string;

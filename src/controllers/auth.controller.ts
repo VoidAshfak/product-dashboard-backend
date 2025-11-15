@@ -5,18 +5,18 @@ import jwt from "jsonwebtoken"
 import type {
     LoginBody,
     LoginSuccessPayload,
-    responseUser,
+    ResponseUser,
     Tokens,
 } from "../types/auth.type.js";
 import { user } from "../db/data.js";
 
 
 const generateAccessAndRefreshToken = (userId: string): Tokens => {
-    const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET!, {
-        expiresIn: "15m",
-    });
-    const refreshToken = jwt.sign({ userId }, process.env.JWT_SECRET!, {
+    const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {
         expiresIn: "1d",
+    });
+    const refreshToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET!, {
+        expiresIn: "15d",
     });
     return { accessToken, refreshToken };
 };
@@ -41,7 +41,7 @@ const loginUser = async (
         throw new ApiError(401, "Invalid credentials");
     }
 
-    const responseUser: responseUser = {
+    const responseUser: ResponseUser = {
         id: user?.id,
         email: user?.email,
         role: user?.role,
