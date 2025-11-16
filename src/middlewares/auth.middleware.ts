@@ -22,14 +22,14 @@ export const verifyJWT = (
 ): void => {
     const rawToken = req.cookies?.accessToken;
 
+    console.log("accessToken cookie:", rawToken);
+
     if (!rawToken) {
         return next(new ApiError(401, "Unauthorized request"));
     }
 
-    // In case something stored "Bearer <token>" in the cookie
-    const token = rawToken.startsWith("Bearer ")
-        ? rawToken.slice(7)
-        : rawToken;
+    // Just in case it's "Bearer <token>"
+    const token = rawToken.startsWith("Bearer ") ? rawToken.slice(7) : rawToken;
 
     const secret = process.env.ACCESS_TOKEN_SECRET;
     if (!secret) {
@@ -55,6 +55,3 @@ export const verifyJWT = (
         return next(new ApiError(401, "Invalid access token"));
     }
 };
-
-
-
