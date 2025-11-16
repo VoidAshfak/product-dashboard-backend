@@ -29,7 +29,6 @@ const corsOptions: CorsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 
 // To accept json data
 app.use(express.json({
