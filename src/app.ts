@@ -1,5 +1,5 @@
 import express from "express";
-import cors from "cors";
+import cors, { type CorsOptions } from "cors";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.routes.js";
 import ProductRouter from "./routes/product.routes.js";
@@ -10,24 +10,26 @@ dotenv.config({ path: './.env' })
 
 const app = express();
 
-console.log("CORS_ORIGIN_SECONDARY:", process.env.CORS_ORIGIN_SECONDARY);
-
 const allowedOrigins = [
     process.env.CORS_ORIGIN_PRIMARY,
     process.env.CORS_ORIGIN_SECONDARY
 ]
 
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
+const corsOptions: CorsOptions = {
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);
 
-        if (allowedOrigins.indexOf(origin) === -1) {
-            callback(new Error("Not allowed by CORS"));
-        }
-        callback(null, true);
-    },
-    credentials: true
-}))
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // To accept json data
 app.use(express.json({

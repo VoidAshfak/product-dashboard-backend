@@ -78,7 +78,7 @@ interface JwtUserPayload extends JwtPayload {
 
 const refresh = (req: Request, res: Response) => {
     const rawToken = req.cookies?.accessToken;
-    
+
 
     if (!rawToken) {
         throw new ApiError(401, "Unauthorized request");
@@ -108,10 +108,15 @@ const refresh = (req: Request, res: Response) => {
 }
 
 const logout = (req: Request, res: Response) => {
+    const options: CookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    }
     return res
         .status(200)
-        .cookie("accessToken", null)
-        .cookie("refreshToken", null)
+        .cookie("accessToken", null, { ...options, maxAge: 0 })
+        .cookie("refreshToken", null, { ...options, maxAge: 0 })
         .json(new ApiResponse(200, null, "User Logged Out Successfully"));
 }
 
