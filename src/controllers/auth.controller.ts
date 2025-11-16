@@ -73,8 +73,24 @@ const loginUser = async (
 }
 
 const refresh = (req: Request, res: Response) => {
-    const user = req.user;
-    res.json({ user })
+    if (!req.user) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+    const responseUser: ResponseUser = {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.role,
+    };
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse<LoginSuccessPayload>(
+                200,
+                { user: responseUser },
+                "User fetched successfully"
+            )
+        );
 }
 
 const logout = (req: Request, res: Response) => {
