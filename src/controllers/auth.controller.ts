@@ -1,7 +1,7 @@
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import type { Request, Response, CookieOptions } from "express";
-import jwt from "jsonwebtoken"
+import jwt, { type JwtPayload } from "jsonwebtoken"
 import type {
     LoginBody,
     LoginSuccessPayload,
@@ -20,6 +20,7 @@ const generateAccessAndRefreshToken = (userId: string): Tokens => {
     });
     return { accessToken, refreshToken };
 };
+
 
 const loginUser = async (
     req: Request<{}, ApiResponse<LoginSuccessPayload>, LoginBody>,
@@ -71,26 +72,39 @@ const loginUser = async (
 
 
 }
+interface JwtUserPayload extends JwtPayload {
+    userId: string;
+}
 
 const refresh = (req: Request, res: Response) => {
-    if (!req.user) {
+    const rawToken = req.cookies?.accessToken;
+    
+
+    if (!rawToken) {
         throw new ApiError(401, "Unauthorized request");
     }
-    const responseUser: ResponseUser = {
-        id: req.user.id,
-        email: req.user.email,
-        role: req.user.role,
-    };
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse<LoginSuccessPayload>(
-                200,
-                { user: responseUser },
-                "User fetched successfully"
-            )
-        );
+    const token = rawToken.startsWith("Bearer ") ? rawToken.slice(7) : rawToken;
+
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+    if (!secret) {
+        throw new ApiError(500, "Incorrect secret");
+    }
+
+    try {
+        const { userId } = jwt.verify(token, secret) as JwtUserPayload;
+
+        if (!userId || userId !== user.id) {
+            return res.status(401).json({ message: "Unauthorized request" });
+        } else {
+            return res.status(200).json({ message: "Authorized request" });
+        }
+
+    } catch (err) {
+        console.error("verifyJWT error:", err);
+        return res.status(401).json({ message: "Unauthorized request" });
+    }
+
 }
 
 const logout = (req: Request, res: Response) => {
