@@ -22,13 +22,10 @@ export const verifyJWT = (
 ): void => {
     const rawToken = req.cookies?.accessToken;
 
-    console.log("accessToken cookie:", rawToken);
-
     if (!rawToken) {
         return next(new ApiError(401, "Unauthorized request"));
     }
 
-    // Just in case it's "Bearer <token>"
     const token = rawToken.startsWith("Bearer ") ? rawToken.slice(7) : rawToken;
 
     const secret = process.env.ACCESS_TOKEN_SECRET;
